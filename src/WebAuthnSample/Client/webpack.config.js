@@ -2,9 +2,11 @@
 const path = require('path');
 
 module.exports = function(env, argv) {
+    const mode = argv.mode || "development";
+    
     let config = {
-        mode: argv.mode === "production" ? "production": "development",
-        devtool: argv.mode === "production" ? "source-map": "eval-cheap-module-source-map",
+        mode: mode === "production" ? "production": "development",
+        devtool: mode === "production" ? "source-map": "eval-cheap-module-source-map",
         plugins: [
             new MiniCssExtractPlugin({
                 filename: "css/shared.css"
@@ -35,15 +37,13 @@ module.exports = function(env, argv) {
                 {
                     test: /\.scss$/,
                     use: [
-                        MiniCssExtractPlugin.loader,
+                        { loader: MiniCssExtractPlugin.loader },
                         "css-loader"
                     ]
                 }
             ]
         }
     };
-  
-    console.log("Using configuration: ", config.mode);
-    
+
     return config;
 };
