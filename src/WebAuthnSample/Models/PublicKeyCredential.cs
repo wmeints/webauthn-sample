@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Fido2NetLib.Objects;
 
@@ -53,12 +54,14 @@ public class PublicKeyCredential
     /// <summary>
     /// The associated application user
     /// </summary>
-    public ApplicationUser User { get; set; }
+    [NotNull]
+    public ApplicationUser? User { get; set; }
     
     /// <summary>
     /// The credential ID
     /// </summary>
-    public string CredentialId { get; set; }
+    [NotNull]
+    public string? CredentialId { get; set; }
     
     /// <summary>
     /// Deserializes the descriptor data for the credential

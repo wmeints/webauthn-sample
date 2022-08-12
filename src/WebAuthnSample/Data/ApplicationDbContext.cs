@@ -17,7 +17,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         base.OnModelCreating(builder);
 
         builder.Entity<PublicKeyCredential>().HasKey(x => x.Id);
-        builder.Entity<PublicKeyCredential>().Property<string>("ApplicationUserId");
+        builder.Entity<PublicKeyCredential>().Property(x => x.CredentialId).IsRequired();
+        builder.Entity<PublicKeyCredential>().Property<string>("ApplicationUserId").IsRequired();
         builder.Entity<PublicKeyCredential>().HasOne(x => x.User)
             .WithMany(x=>x.PublicKeyCredentials)
             .HasForeignKey("ApplicationUserId");
