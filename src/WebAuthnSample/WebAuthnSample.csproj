@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="bootstrap" Version="5.2.0-beta1" />
     <PackageReference Include="Fido2" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.8">
@@ -16,6 +15,22 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Client\registration\index.tsx" />
+    <TypeScriptCompile Include="Client\registration\api.ts" />
+    <TypeScriptCompile Include="Client\registration\RegistrationPage.tsx" />
+    <TypeScriptCompile Include="Client\shared\FormTextInput.tsx" />
+    <TypeScriptCompile Include="Client\shared\index.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\js\pages\registration.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\js" />
   </ItemGroup>
 
 </Project>

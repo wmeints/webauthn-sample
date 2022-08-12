@@ -1,0 +1,24 @@
+﻿@page "/Identity/Account/Register"
+@model WebAuthnSample.Pages.Register
+@{
+    ViewBag.Title = "Register a new account";
+}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewBag.Title</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div id="registration-form">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/js/registration.js" asp-append-version="true"></script>
+}

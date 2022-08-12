@@ -458,3 +458,4 @@ $RECYCLE.BIN/
 ##
 database/
 .env
+*.LICENSE.txt

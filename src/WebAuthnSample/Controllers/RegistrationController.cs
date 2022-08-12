@@ -12,23 +12,23 @@ namespace WebAuthnSample.Controllers;
 public class RegistrationController : ControllerBase
 {
     private readonly IWebAuthnInteractionService _webAuthnInteractionService;
-    private readonly ISession _session;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RegistrationController(ISession session, IWebAuthnInteractionService webAuthnInteractionService)
+    public RegistrationController(IWebAuthnInteractionService webAuthnInteractionService, IHttpContextAccessor httpContextAccessor)
     {
-        _session = session;
         _webAuthnInteractionService = webAuthnInteractionService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     [HttpPost("/api/registration/credentialoptions")]
-    public async Task<IActionResult> GenerateCredentialOptions(GenerateCredentialOptionsForm form)
+    public async Task<IActionResult> GenerateCredentialOptions([FromBody]GenerateCredentialOptionsForm form)
     {
         var result = await _webAuthnInteractionService.GenerateCredentialsCreateOptionsAsync(
             form.DisplayName, form.UserName);
 
         if (result.Succeeded)
         {
-            _session.SetString("fido2.options", result.Options.ToJson());
+            _httpContextAccessor?.HttpContext?.Session.SetString("fido2.options", result.Options.ToJson());
             return Content(result.Options.ToJson(), "application/json");
         }
         else
@@ -48,7 +48,8 @@ public class RegistrationController : ControllerBase
     {
         // Retrieve the original options that were used to start the registration.
         // We'll need these to verify that the user is completing an existing registration request.
-        var credentialCreateOptions = CredentialCreateOptions.FromJson(_session.GetString("fido2.options"));
+        var credentialCreateOptions = CredentialCreateOptions.FromJson(
+            _httpContextAccessor?.HttpContext?.Session.GetString("fido2.options"));
         
         var result = await _webAuthnInteractionService.CreatePublicKeyCredentialAsync(
             credentialCreateOptions, attestationResponse);

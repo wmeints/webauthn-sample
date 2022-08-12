@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Transactions;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Microsoft.AspNetCore.Identity;
@@ -35,7 +36,8 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
     /// <param name="displayName">Display name to use for the user.</param>
     /// <param name="userName">User name to use for the user.</param>
     /// <returns>The options to use for creating a new public key credential.</returns>
-    public async Task<GenerateCredentialsCreateOptionsResult> GenerateCredentialsCreateOptionsAsync(string displayName, string userName)
+    public async Task<GenerateCredentialsCreateOptionsResult> GenerateCredentialsCreateOptionsAsync(string displayName,
+        string userName)
     {
         var result = new GenerateCredentialsCreateOptionsResult();
 
@@ -48,7 +50,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
         {
             result.ErrorMessages.Add("UserName is not provided.");
         }
-        
+
         if (await _userManager.FindByNameAsync(userName) is { })
         {
             result.ErrorMessages.Add("User is already registered.");
@@ -58,7 +60,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
         {
             return result;
         }
-        
+
         // This is not an application user, but rather a set of properties
         // to identify a potential user later on in the registration process.
         var user = new Fido2User
@@ -92,7 +94,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
 
         return result;
     }
-    
+
     /// <summary>
     /// Creates a new user with a public key credential attached to it.
     /// </summary>
@@ -103,7 +105,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
         CredentialCreateOptions credentialCreateOptions, AuthenticatorAttestationRawResponse attestationResponse)
     {
         var result = new CreatePublicKeyCredentialResult();
-        
+
         // This check verifies that the request isn't a reply from an earlier attempt.
         IsCredentialIdUniqueToUserAsyncDelegate isCredentialUniqueCallback =
             async (args, cancellationToken) =>
@@ -137,20 +139,27 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
                 SignatureCounter = registrationResult.Counter,
                 CredentialType = registrationResult.CredType,
                 RegistrationDate = DateTime.UtcNow,
-                AttestationGuid = registrationResult.Aaguid
+                AttestationGuid = registrationResult.Aaguid,
+                CredentialId = Convert.ToBase64String(registrationResult.CredentialId)
             };
 
-            var createUserResult = await _userManager.CreateAsync(applicationUser);
+            // This transaction scope is important as we want the user and its credential
+            // to be persisted together. If one of these operations fails, then the other must fail too.
+            using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var createUserResult = await _userManager.CreateAsync(applicationUser);
 
-            if (result.Succeeded)
-            {
-                await _publicKeyCredentialStore.CreateAsync(storedCredential);
-            }
-            else
-            {
-                foreach (var error in createUserResult.Errors)
+                if (result.Succeeded)
                 {
-                    result.ErrorMessages.Add(error.Description);
+                    await _publicKeyCredentialStore.CreateAsync(storedCredential);
+                    scope.Complete();
+                }
+                else
+                {
+                    foreach (var error in createUserResult.Errors)
+                    {
+                        result.ErrorMessages.Add(error.Description);
+                    }
                 }
             }
         }
