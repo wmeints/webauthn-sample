@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="bootstrap" Version="5.2.0-beta1" />
+    <PackageReference Include="Fido2" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.8">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
