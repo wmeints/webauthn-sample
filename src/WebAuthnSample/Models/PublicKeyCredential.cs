@@ -56,6 +56,11 @@ public class PublicKeyCredential
     public ApplicationUser User { get; set; }
     
     /// <summary>
+    /// The credential ID
+    /// </summary>
+    public string CredentialId { get; set; }
+    
+    /// <summary>
     /// Deserializes the descriptor data for the credential
     /// </summary>
     [NotMapped]
