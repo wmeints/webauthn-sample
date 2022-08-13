@@ -15,6 +15,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
     private readonly Fido2 _fido2;
     private readonly PublicKeyCredentialStore _publicKeyCredentialStore;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
 
     /// <summary>
     /// Initializes a new instance of <see cref="WebAuthnInteractionService"/>
@@ -22,12 +23,14 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
     /// <param name="fido2">FIDO2 library instance.</param>
     /// <param name="publicKeyCredentialStore">The public key credential store to use.</param>
     /// <param name="userManager">The user manager to use for managing the application user account.</param>
+    /// <param name="signInManager">The sign-in manager to use for logging in the user.</param>
     public WebAuthnInteractionService(Fido2 fido2, PublicKeyCredentialStore publicKeyCredentialStore,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
     {
         _fido2 = fido2;
         _publicKeyCredentialStore = publicKeyCredentialStore;
         _userManager = userManager;
+        _signInManager = signInManager;
     }
 
     /// <summary>
@@ -35,7 +38,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
     /// </summary>
     /// <param name="displayName">Display name to use for the user.</param>
     /// <param name="userName">User name to use for the user.</param>
-    /// <returns>The options to use for creating a new public key credential.</returns>
+    /// <returns>An awaitable task with the outcome of the operation.</returns>
     public async Task<GenerateCredentialsCreateOptionsResult> GenerateCredentialsCreateOptionsAsync(string displayName,
         string userName)
     {
@@ -135,7 +138,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
                 User = applicationUser,
                 Descriptor = new PublicKeyCredentialDescriptor(registrationResult.CredentialId),
                 PublicKey = registrationResult.PublicKey,
-                UserHandle = registrationResult.User.Id,
+                UserHandle = Convert.ToBase64String(registrationResult.User.Id),
                 SignatureCounter = registrationResult.Counter,
                 CredentialType = registrationResult.CredType,
                 RegistrationDate = DateTime.UtcNow,
@@ -168,6 +171,83 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
             result.ErrorMessages.Add(success.ErrorMessage);
         }
 
+        return result;
+    }
+
+    /// <summary>
+    /// Generates options used to authenticate a user using an existing public key credential.
+    /// </summary>
+    /// <param name="userName">The user name of the user.</param>
+    /// <param name="userVerification">The user verification requirement setting.</param>
+    /// <returns>An awaitable task with the outcome of the operation.</returns>
+    public async Task<GenerateAssertionOptionsResult> GenerateAssertionOptionsAsync(string userName, UserVerificationRequirement userVerification)
+    {
+        var result = new GenerateAssertionOptionsResult();
+        var identityUser = await _userManager.FindByNameAsync(userName);
+
+        // We can't authenticate users that haven't been registered in the application.
+        // We also don't want to allow locked user accounts to authenticate.
+        if (identityUser == null)
+        {
+            result.ErrorMessages.Add("User account not available.");
+            return result;
+        }
+
+        // The user is allowed to login using any of the stored public key credentials.
+        // This allows the user to register multiple FIDO2 keys in case one of them breaks.
+        var registeredCredentials = await _publicKeyCredentialStore.GetCredentialsByUserNameAsync(userName);
+        var allowedCredentials = registeredCredentials.Select(x => x.Descriptor).ToList();
+        
+        var extensions = new AuthenticationExtensionsClientInputs
+        {
+            UserVerificationMethod = true
+        };
+
+        var assertionOptions = _fido2.GetAssertionOptions(allowedCredentials, userVerification, extensions);
+
+        result.Options = assertionOptions;
+
+        return result;
+    }
+
+    /// <summary>
+    /// Verifies an assertion response made against a previously generated set of assertion options. 
+    /// </summary>
+    /// <param name="assertionOptions">Assertion options to verify against.</param>
+    /// <param name="assertionRawResponse">Assertion response received from the browser.</param>
+    /// <returns>An awaitable task with the outcome of the operation.</returns>
+    public async Task<AssertPublicKeyCredentialResult> AssertPublicKeyCredentialAsync(AssertionOptions assertionOptions,
+        AuthenticatorAssertionRawResponse assertionRawResponse)
+    {
+        var result = new AssertPublicKeyCredentialResult();
+        var credentials = await _publicKeyCredentialStore.GetCredentialsByIdAsync(assertionRawResponse.Id);
+
+        if (credentials == null)
+        {
+            result.ErrorMessages.Add("Invalid credential.");
+            return result;
+        }
+
+        async Task<bool> IsUserHandleOwnerOfCredentialIdAsync(
+            IsUserHandleOwnerOfCredentialIdParams args, CancellationToken cancellationToken)
+        {
+            return await _publicKeyCredentialStore.IsCredentialOwnedByUserAsync(args.UserHandle, args.CredentialId);
+        }
+
+        try
+        {
+            var assertionResult = await _fido2.MakeAssertionAsync(
+                assertionRawResponse, assertionOptions, credentials.PublicKey,
+                credentials.SignatureCounter, IsUserHandleOwnerOfCredentialIdAsync);
+            
+            await _publicKeyCredentialStore.UpdateSignatureCounter(credentials.Id, assertionResult.Counter);
+            await _signInManager.SignInAsync(credentials.User, isPersistent: false);
+        }
+        catch (Fido2VerificationException)
+        {
+            result.ErrorMessages.Add("Assertion failed. Can't authenticate the user with this assertion response.");
+        }
+        
         return result;
     }
 }

@@ -52,4 +52,46 @@ public class PublicKeyCredentialStore
         await _applicationDbContext.PublicKeyCredentials.AddAsync(storedCredential);
         await _applicationDbContext.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// Gets public key credentials based on the credential ID
+    /// </summary>
+    /// <param name="credentialId"></param>
+    /// <returns></returns>
+    public async Task<PublicKeyCredential?> GetCredentialsByIdAsync(byte[] credentialId)
+    {
+        var credentialIdValue = Convert.ToBase64String(credentialId);
+
+        return await _applicationDbContext.PublicKeyCredentials
+            .Include(x => x.User)
+            .SingleOrDefaultAsync(x => x.CredentialId == credentialIdValue);
+    }
+
+    /// <summary>
+    /// Verifies if there's a public key credential with the given user handle and credential ID. 
+    /// </summary>
+    /// <param name="userHandle">User handle representing the binary ID of the user.</param>
+    /// <param name="credentialId">ID of the credential.</param>
+    /// <returns>Returns <c>true</c> when there's a match; Otherwise returns <c>false</c>.</returns>
+    public async Task<bool> IsCredentialOwnedByUserAsync(byte[] userHandle, byte[] credentialId)
+    {
+        var userHandleValue = Convert.ToBase64String(userHandle);
+        var credentialIdValue = Convert.ToBase64String(credentialId);
+
+        return await _applicationDbContext.PublicKeyCredentials
+            .AnyAsync(x => x.UserHandle == userHandleValue && x.CredentialId == credentialIdValue);
+    }
+
+    /// <summary>
+    /// Updates the signature counter for a public key credential
+    /// </summary>
+    /// <param name="credentialsId">ID of the credential</param>
+    /// <param name="assertionResultCounter">The new value for the signature counter.</param>
+    public async Task UpdateSignatureCounter(int credentialsId, uint assertionResultCounter)
+    {
+        var credential = await _applicationDbContext.PublicKeyCredentials.SingleAsync(x => x.Id == credentialsId);
+        credential.SignatureCounter = assertionResultCounter;
+
+        await _applicationDbContext.SaveChangesAsync();
+    }
 }

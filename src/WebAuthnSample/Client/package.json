@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --progress --mode production"
+    "build": "webpack --progress --mode production",
+    "build:debug": "webpack --progress --mode development"
   },
   "author": "",
   "license": "MIT",

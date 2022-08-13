@@ -12,8 +12,8 @@ using WebAuthnSample.Data;
 namespace WebAuthnSample.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220812153438_IncludeCredentialId")]
-    partial class IncludeCredentialId
+    [Migration("20220813055348_CreateInitialSchema")]
+    partial class CreateInitialSchema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -176,6 +176,10 @@ namespace WebAuthnSample.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -231,6 +235,7 @@ namespace WebAuthnSample.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("ApplicationUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("AttestationGuid")
@@ -244,9 +249,11 @@ namespace WebAuthnSample.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DescriptorJson")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("PublicKey")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<DateTime>("RegistrationDate")
@@ -255,8 +262,9 @@ namespace WebAuthnSample.Data.Migrations
                     b.Property<long>("SignatureCounter")
                         .HasColumnType("bigint");
 
-                    b.Property<byte[]>("UserHandle")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("UserHandle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("UserId")
                         .HasColumnType("varbinary(max)");
@@ -323,7 +331,9 @@ namespace WebAuthnSample.Data.Migrations
                 {
                     b.HasOne("WebAuthnSample.Models.ApplicationUser", "User")
                         .WithMany("PublicKeyCredentials")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

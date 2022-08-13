@@ -19,6 +19,10 @@ module.exports = function(env, argv) {
             registration: {
                 import: "./registration/index.tsx",
                 dependOn: ["shared"]
+            },
+            authentication: {
+                import: "./authentication/index.tsx",
+                dependOn: ["shared"]
             }
         },
         output: {

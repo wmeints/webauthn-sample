@@ -28,10 +28,10 @@ export default function RegistrationForm(): React.ReactElement {
     }
 
     return (
-        <form onSubmit={startRegistration}>
+        <form>
             <FormTextInput label="Full Name" identifier="fullName" setValue={setDisplayName} value={displayName}/>
             <FormTextInput label="Email Address" identifier="userName" setValue={setUserName} value={userName}/>
-            <button type="submit" className="btn btn-primary">Register</button>
+            <button type="button" onClick={startRegistration} className="btn btn-primary">Register</button>
         </form>
     );
 }

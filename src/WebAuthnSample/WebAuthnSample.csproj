@@ -18,18 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Client\registration\index.tsx" />
-    <TypeScriptCompile Include="Client\registration\api.ts" />
-    <TypeScriptCompile Include="Client\registration\RegistrationPage.tsx" />
-    <TypeScriptCompile Include="Client\shared\FormTextInput.tsx" />
-    <TypeScriptCompile Include="Client\shared\index.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\js\pages\registration.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="wwwroot\js" />
   </ItemGroup>
 

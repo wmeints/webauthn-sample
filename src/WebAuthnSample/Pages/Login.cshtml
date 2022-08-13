@@ -1,0 +1,24 @@
+﻿@page "/Identity/Account/Login"
+@model WebAuthnSample.Pages.Login
+@{
+    ViewBag.Title = "Login";
+}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>@ViewBag.Title</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div id="login-form">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/js/authentication.js" asp-append-version="true"></script>
+}

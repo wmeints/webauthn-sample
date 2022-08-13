@@ -20,16 +20,16 @@ public class PublicKeyCredential
     /// The binary identifier for the credential
     /// </summary>
     public byte[]? UserId { get; set; }
-    
+
     /// <summary>
     /// The public key bytes for the credential
     /// </summary>
-    public byte[]? PublicKey { get; set; }
-    
+    public byte[] PublicKey { get; set; } = { };
+
     /// <summary>
     /// The user handle
     /// </summary>
-    public byte[]? UserHandle { get; set; }
+    public string UserHandle { get; set; } = "";
     
     /// <summary>
     /// The signature counter
@@ -67,14 +67,27 @@ public class PublicKeyCredential
     /// Deserializes the descriptor data for the credential
     /// </summary>
     [NotMapped]
-    public PublicKeyCredentialDescriptor? Descriptor
+    public PublicKeyCredentialDescriptor Descriptor
     {
-        get { return string.IsNullOrWhiteSpace(DescriptorJson) ? null : JsonSerializer.Deserialize<PublicKeyCredentialDescriptor>(DescriptorJson); }
-        set { DescriptorJson = JsonSerializer.Serialize(value); }
+        get
+        {
+            var descriptor = JsonSerializer.Deserialize<PublicKeyCredentialDescriptor>(DescriptorJson);
+
+            if (descriptor == null)
+            {
+                throw new InvalidOperationException("Can't deserialize the descriptor JSON");
+            }
+
+            return descriptor;
+        }
+        set
+        {
+            DescriptorJson = JsonSerializer.Serialize(value);
+        }
     }
 
     /// <summary>
     /// The JSON data for the descriptor
     /// </summary>
-    public virtual string? DescriptorJson { get; set; }
+    public string DescriptorJson { get; set; } = "";
 }

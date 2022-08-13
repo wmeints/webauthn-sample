@@ -1,3 +1,6 @@
+/*!*************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/bootstrap/dist/css/bootstrap.css ***!
+  \*************************************************************************************************/
 @charset "UTF-8";
 /*!
  * Bootstrap  v5.2.0 (https://getbootstrap.com/)
@@ -10905,6 +10908,7 @@ textarea.form-control-lg {
 }
 
 /*# sourceMappingURL=bootstrap.css.map */
+/*!*********************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./shared/index.scss ***!
+  \*********************************************************************/
 
-
-/*# sourceMappingURL=shared.css.map*/

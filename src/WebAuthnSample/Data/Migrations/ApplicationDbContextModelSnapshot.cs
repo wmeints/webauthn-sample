@@ -174,6 +174,10 @@ namespace WebAuthnSample.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -243,9 +247,11 @@ namespace WebAuthnSample.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DescriptorJson")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("PublicKey")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<DateTime>("RegistrationDate")
@@ -254,8 +260,9 @@ namespace WebAuthnSample.Data.Migrations
                     b.Property<long>("SignatureCounter")
                         .HasColumnType("bigint");
 
-                    b.Property<byte[]>("UserHandle")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("UserHandle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("UserId")
                         .HasColumnType("varbinary(max)");
