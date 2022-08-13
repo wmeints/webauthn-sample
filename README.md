@@ -17,7 +17,7 @@ You can run this sample as a docker container using the following steps:
 After cloning the repository, create a file `.env` with the following content:
 
 ```text
-DB_PASSWORD=SomethingStr0ng!
+DB_PASSWORD=<your-password>
 ```
 
 You can choose any password you like. Once you have the password set, perform the following steps from the root of the project directory:
