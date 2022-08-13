@@ -43,7 +43,9 @@ The project is made out of two parts:
 * `src/WebAuthnSample/Client` - Contains the client-side scripts.
 
 The server-side components are written in ASP.NET Core 6.
-For the client-side components I've used webpack with React. 
+For the client-side components I've used webpack with React. I've found that typescript is great for this kind of
+more complicated, but not too complicated stuff. And webpack is great, since it allows me to generate compact packages
+of client-side scripts.
 
 #### The client-side scripts
 
@@ -149,6 +151,32 @@ sequenceDiagram
 7. The browser receives a HTTP 202, and redirects the user to the home page.
 
 If you're interested in the ceremony to verify a login challenge, you can find a description [in the WebAuthn spec](https://w3c.github.io/webauthn/#sctn-verifying-assertion).
+
+### Compiling the solution
+
+In case you want to change something in the solution, please follow the instructions in this section.
+
+#### Changing the client-side components
+
+As we discussed earlier in the README, this project contains some components written in React.
+To compile these components, you'll need to follow these steps:
+
+* `cd src/WebAuthnSample/Client`
+* `npm install`
+* `npm run build`
+
+This produces a production-ready build of the scripts. You can't easily debug these. So if you're debugging an issue,
+you should use the command `npm run build:debug` instead.
+
+#### Changing the server-side components
+
+The server-side components are implemented in ASP.NET Core. You can change these just like any other .NET project.
+For database migrations, we recommend that you use `dotnet-ef` to generate them. I'm assuming you know how to write
+applications in ASP.NET Core for the purpose of this sample.
+
+## Contributing
+
+If you find an bug in the code, please submit an issue in this repo. Pull requests are welcome too!
 
 [REGISTRATION_URL]: https://github.com/wmeints/webauthn-sample/blob/d6683db6bf4ffb17b3b0784d2f46ed24e5398ac4/src/WebAuthnSample/Client/registration/RegistrationForm.tsx#L11
 [CHALLENGE_URL]: https://github.com/wmeints/webauthn-sample/blob/d6683db6bf4ffb17b3b0784d2f46ed24e5398ac4/src/WebAuthnSample/Controllers/RegistrationController.cs#L24
