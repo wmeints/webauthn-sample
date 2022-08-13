@@ -1,6 +1,7 @@
 ﻿import React, {useState} from "react";
 import FormTextInput from "../shared/FormTextInput";
 import {getCredentialCreateOptions, registerPublicKeyCredential} from "./api";
+import {getRedirectUrl, redirect} from "../shared/navigation";
 
 /**
  * Component used to render the registration form.
@@ -10,8 +11,6 @@ export default function RegistrationForm(): React.ReactElement {
     const [displayName, setDisplayName] = useState("");
 
     async function startRegistration() {
-        console.log("Registration started");
-
         let credentialCreateOptions = await getCredentialCreateOptions(displayName, userName);
 
         let credential = await navigator.credentials.create({
@@ -23,6 +22,8 @@ export default function RegistrationForm(): React.ReactElement {
         } else {
             throw new Error("Failed to register public key credential. Received no credential object that is usable.");
         }
+        
+        redirect(getRedirectUrl() ?? "/");
 
         return false;
     }

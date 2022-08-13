@@ -1,13 +1,12 @@
 ﻿import React, {useState} from "react";
 import FormTextInput from "../shared/FormTextInput";
 import {authenticate, getAuthenticationOptions} from "./api";
+import {getRedirectUrl, redirect} from "../shared/navigation";
 
 export default function LoginForm() {
     const [userName, setUserName] = useState("");
     
     async function startAssertion() {
-        console.log("Assertion started");
-        
         let assertionOptions = await getAuthenticationOptions(userName);
         
         let credentials = await navigator.credentials.get({
@@ -20,6 +19,8 @@ export default function LoginForm() {
         }
         
         await authenticate(credentials);
+        
+        redirect(getRedirectUrl() ?? "/");
         
         return false;
     }

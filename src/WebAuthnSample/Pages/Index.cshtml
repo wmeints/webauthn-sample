@@ -1,0 +1,26 @@
+﻿@page "/"
+@model WebAuthnSample.Pages.Index
+@{
+    ViewBag.Title = "Home";
+}
+
+@if (User.Identity is {IsAuthenticated: true })
+{
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>You're logged in!</h1>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p>Looks like you're not logged in yet. Please use the login or the registration button on the navbar to get started.</p>
+            </div>
+        </div>
+    </div>
+}

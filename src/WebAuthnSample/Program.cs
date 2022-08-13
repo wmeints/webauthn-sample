@@ -57,6 +57,4 @@ app.UseSession();
 app.MapControllers();
 app.MapRazorPages();
 
-app.UseWelcomePage("/");
-
 app.Run();
