@@ -1,11 +1,12 @@
 ﻿import { toBase64Url, toArrayBuffer } from "../shared/conversions";
+import {ValidationResult} from "../shared/validation";
 
 /**
  * Gets the options to start an assertion operation
  * @param userName User name for which to retrieve the assertion options.
  * @returns The assertion options to use for the assertion operation.
  */
-export async function getAuthenticationOptions(userName: string): Promise<PublicKeyCredentialRequestOptions> {
+export async function getAuthenticationOptions(userName: string): Promise<PublicKeyCredentialRequestOptions | ValidationResult> {
     let response = await fetch("/api/authentication/options", {
         method: "POST",
         body: JSON.stringify({
@@ -16,6 +17,11 @@ export async function getAuthenticationOptions(userName: string): Promise<Public
             "Accept": "application/json"
         }
     });
+
+    if (response.status == 400) {
+        let errorResponseData = await response.json();
+        return {messages: errorResponseData};
+    }
 
     let assertionOptions = await response.json();
     

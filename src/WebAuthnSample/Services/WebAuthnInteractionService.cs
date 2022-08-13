@@ -189,7 +189,7 @@ public class WebAuthnInteractionService : IWebAuthnInteractionService
         // We also don't want to allow locked user accounts to authenticate.
         if (identityUser == null)
         {
-            result.ErrorMessages.Add("User account not available.");
+            result.ErrorMessages.Add("Invalid credentials. Please verify your input and try again.");
             return result;
         }
 

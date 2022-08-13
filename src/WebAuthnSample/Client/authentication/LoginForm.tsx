@@ -3,7 +3,7 @@ import FormTextInput from "../shared/FormTextInput";
 import {authenticate, getAuthenticationOptions} from "./api";
 import {getRedirectUrl, redirect} from "../shared/navigation";
 import ErrorMessage from "../shared/ErrorMessage";
-import {ValidationMessage} from "../shared/validation";
+import {isInvalid, ValidationMessage} from "../shared/validation";
 
 export default function LoginForm() {
     const [userName, setUserName] = useState("");
@@ -27,10 +27,15 @@ export default function LoginForm() {
         }
 
         try {
-            let assertionOptions = await getAuthenticationOptions(userName);
+            let result = await getAuthenticationOptions(userName);
 
+            if(isInvalid(result)) {
+                setError({ message: result.messages[""].join("\r\n"), visible: true});
+                return;
+            }
+            
             let credentials = await navigator.credentials.get({
-                publicKey: assertionOptions
+                publicKey: result
             });
 
             if (credentials == null || !(credentials instanceof PublicKeyCredential)) {
