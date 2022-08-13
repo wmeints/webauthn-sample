@@ -20,7 +20,7 @@ public class RegistrationController : ControllerBase
         _httpContextAccessor = httpContextAccessor;
     }
 
-    [HttpPost("/api/registration/credentialoptions")]
+    [HttpPost("/api/registration/options")]
     public async Task<IActionResult> GenerateCredentialOptions([FromBody]GenerateCredentialOptionsForm form)
     {
         var result = await _webAuthnInteractionService.GenerateCredentialsCreateOptionsAsync(

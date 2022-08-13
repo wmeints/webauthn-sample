@@ -13,7 +13,7 @@ export async function getCredentialCreateOptions(displayName: string, userName: 
         displayName
     };
 
-    let response = await fetch("/api/registration/credentialoptions", {
+    let response = await fetch("/api/registration/options", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
